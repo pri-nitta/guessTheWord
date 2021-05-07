@@ -39,14 +39,13 @@ class GameFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
 
         viewModel.score.observe(viewLifecycleOwner, Observer { newScore -> })
-        binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
-        )
+        binding = DataBindingUtil.inflate(inflater, R.layout.game_fragment, container, false)
         Log.i("GameFragment", "Called ViewModelProvider.get")
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer<Boolean> {hasFinished ->
+            if (hasFinished) gameFinished()
+        })
 
         binding.endGameButton.setOnClickListener{ onEndGame()}
         binding.correctButton.setOnClickListener { onCorrect() }
@@ -86,5 +85,6 @@ class GameFragment : Fragment() {
         val action = GameFragmentDirections.actionGameToScore()
         action.score = viewModel.score.value?:0
         NavHostFragment.findNavController(this).navigate(action)
+        viewModel.onGameFinishComplete()
     }
 }
