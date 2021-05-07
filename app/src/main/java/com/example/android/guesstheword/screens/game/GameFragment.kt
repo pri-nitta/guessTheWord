@@ -21,13 +21,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
-import com.google.android.material.snackbar.Snackbar
 
 class GameFragment : Fragment() {
 
@@ -37,6 +38,7 @@ class GameFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore -> })
         binding = DataBindingUtil.inflate(
                 inflater,
                 R.layout.game_fragment,
@@ -68,11 +70,11 @@ class GameFragment : Fragment() {
     }
 
     private fun updateWordText() {
-        binding.wordText.text = viewModel.word
+        binding.wordText.text = viewModel.word.value
     }
 
     private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
+        binding.scoreText.text = viewModel.score.value.toString()
     }
 
     private fun onEndGame(){
@@ -80,9 +82,9 @@ class GameFragment : Fragment() {
     }
 
     private fun gameFinished(){
-        Snackbar.make(requireView(), "Game has just finished", 3).show()
+        Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
         val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score
+        action.score = viewModel.score.value?:0
         NavHostFragment.findNavController(this).navigate(action)
     }
 }
